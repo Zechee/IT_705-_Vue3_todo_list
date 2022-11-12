@@ -1,20 +1,11 @@
 <template>
 
   <div>
-    <nav-header></nav-header>
-    <nav-main></nav-main>
-    <nav-footer></nav-footer>
+    <nav-header @add="add"></nav-header>
+    <nav-main :list="list" @del="del"></nav-main>
+    <nav-footer :list="list" @clear="clear"></nav-footer>
   </div>
-  <div>
-    {{list}}
-  </div>
-  <!-- <div>
-    {{num1}} --- {{num2}}
-    The sum of Num1 and Num2 : {{addNum}}
-  </div>
-  <div>
-    <button @click="add">Add</button>
-  </div>  -->
+
 
 
 </template>
@@ -25,7 +16,9 @@ import NavMain from '@/components/navMain/NavMain'
 import NavFooter from '@/components/navFooter/NavFooter'
 
 import { defineComponent, ref, computed } from 'vue'
-import {useStore} from 'vuex'
+import { useStore } from 'vuex'
+import { useRouter, useRoute } from 'vue-router'
+import { valueToNode } from '@babel/types'
 
 export default defineComponent({
   name: 'Home',
@@ -43,27 +36,53 @@ export default defineComponent({
 
   setup() {
     let store = useStore()
-    // console.log(store)
     let list = computed(() => {
       return store.state.list
     })
-    // let num1 = ref(10)
-    // let num2 = ref(20)
-    // let addNum = computed(() => {
-    //   return num1.value + num2.value
-    // })
-    // let add = () => {
-    //   num1.value ++
-    //   num2.value ++
-    // }
+    let value = ref('')
 
+    // Adding tasks
+    let add = (val) => {
+      value.value = val
+      // Determine if there are duplicate tasks
+      let flag = true
+      list.value.map(item => {
+        if (item.title === value.value) {
+          // If there are duplicate tasks
+          flag = false
+          alter('The task already exists! ')
+        }
+      })
+      // no repeated tasks
+      if (flag) {
+        //Calling mutation
+        store.commit('addTodo', {
+          title: value.value,
+          cpmplete: false
+        })
+      }
+
+    }
+
+    // Deleting tasks
+    let del = (val) => {
+      store.commit('delTodo', val)
+
+    }
+
+    // clear all completed tasks
+    let clear = (val) => {
+      store.commit('clear', val)
+
+    }
 
     return {
-      // num1,
-      // num2,
-      // addNum,
-      // add
-      list
+      add,
+      value,
+      list,
+      del,
+      clear
+
     }
 
   }

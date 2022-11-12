@@ -19,10 +19,13 @@ export default defineComponent({
 
   name: 'navHeader',
 
-  setup() {
+  setup(props, ctx) {
 
     let value = ref('')
     let enter = () => {
+      ctx.emit('add', value.value)
+      // empty input bar
+      value.value = ''
       console.log(value.value)
     }
     return {
